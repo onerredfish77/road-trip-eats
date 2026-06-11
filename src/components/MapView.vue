@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
-import { Loader } from '@googlemaps/js-api-loader'
+import { loadGoogleMaps, hasMapsKey } from '@/utils/googleMaps'
 
 const props = defineProps({
   routePolyline: { type: String, default: '' },
@@ -19,20 +19,14 @@ let markers = []
 let routeLine = null
 let google = null
 
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-
 async function initMap() {
-  if (!apiKey || apiKey === 'your_api_key_here') {
-    errorMessage.value = 'Google Maps API key not configured. Set VITE_GOOGLE_MAPS_API_KEY in .env to enable the map.'
+  if (!hasMapsKey()) {
+    errorMessage.value =
+      'Google Maps API key not configured. Set VITE_GOOGLE_MAPS_API_KEY in .env to enable the map.'
     return
   }
   try {
-    const loader = new Loader({
-      apiKey,
-      version: 'weekly',
-      libraries: ['places'],
-    })
-    google = await loader.load()
+    google = await loadGoogleMaps()
     renderMap()
   } catch (err) {
     errorMessage.value = `Could not load Google Maps: ${err.message || err}`

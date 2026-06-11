@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Loader } from '@googlemaps/js-api-loader'
 import AppHeader from '@/components/AppHeader.vue'
 import RouteSearchBar from '@/components/RouteSearchBar.vue'
 import { useRouteStore } from '@/stores/routeStore'
 import { useRestaurantStore } from '@/stores/restaurantStore'
+import { loadGoogleMaps, hasMapsKey } from '@/utils/googleMaps'
 
 const router = useRouter()
 const routeStore = useRouteStore()
@@ -13,11 +13,15 @@ const restaurantStore = useRestaurantStore()
 
 const loading = ref(false)
 const errorMessage = ref('')
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
-async function fetchDirections({ origin, destination, departureTime }) {
-  if (!apiKey || apiKey === 'your_api_key_here') {
-    // Demo / no-key fallback: skip Directions API and just store inputs.
+async function fetchDirections({
+  origin,
+  destination,
+  originPlace,
+  destinationPlace,
+  departureTime,
+}) {
+  if (!hasMapsKey()) {
     routeStore.setRoute({
       origin,
       destination,
@@ -32,16 +36,20 @@ async function fetchDirections({ origin, destination, departureTime }) {
     return
   }
 
-  const loader = new Loader({
-    apiKey,
-    version: 'weekly',
-    libraries: ['places', 'routes'],
-  })
-  const google = await loader.load()
+  const google = await loadGoogleMaps()
   const service = new google.maps.DirectionsService()
+
+  // Prefer LatLng objects from autocomplete to avoid geocoding ambiguity.
+  const originArg = originPlace
+    ? new google.maps.LatLng(originPlace.lat, originPlace.lng)
+    : origin
+  const destinationArg = destinationPlace
+    ? new google.maps.LatLng(destinationPlace.lat, destinationPlace.lng)
+    : destination
+
   const result = await service.route({
-    origin,
-    destination,
+    origin: originArg,
+    destination: destinationArg,
     travelMode: google.maps.TravelMode.DRIVING,
   })
   if (!result.routes?.length) throw new Error('No route found.')
@@ -58,6 +66,12 @@ async function fetchDirections({ origin, destination, departureTime }) {
   const startLoc = legs[0]?.start_location
   const endLoc = legs[legs.length - 1]?.end_location
 
+  // overview_polyline can be a string OR { points: '...' } depending on API shape.
+  const polyline =
+    typeof route.overview_polyline === 'string'
+      ? route.overview_polyline
+      : route.overview_polyline?.points || ''
+
   routeStore.setRoute({
     origin,
     destination,
@@ -68,7 +82,7 @@ async function fetchDirections({ origin, destination, departureTime }) {
       ? { lat: endLoc.lat(), lng: endLoc.lng() }
       : null,
     departureTime,
-    polyline: route.overview_polyline,
+    polyline,
     legs: legs.map((l) => ({
       distance: l.distance?.value,
       duration: l.duration?.value,
@@ -92,6 +106,7 @@ async function onSubmit(payload) {
     })
     router.push('/results')
   } catch (err) {
+    console.error('[HomeView] route error:', err)
     errorMessage.value =
       err?.message || 'Something went wrong calculating your route.'
   } finally {
