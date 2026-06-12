@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;700&display=swap');
+
 :root {
   --rte-radius: 14px;
   --rte-border: 1px solid rgba(255, 255, 255, 0.08);
+  --rte-font-family: 'Google Sans', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
 .v-theme--light {
@@ -15,9 +19,11 @@ body,
   padding: 0;
 }
 
-#app {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', sans-serif;
+body,
+#app,
+.v-application {
+  font-family: var(--rte-font-family);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.005em;
@@ -29,7 +35,22 @@ body,
 .v-application .text-h5,
 .v-application .text-h6 {
   letter-spacing: -0.02em;
-  font-weight: 600;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.v-toolbar-title,
+.v-application .text-h1,
+.v-application .text-h2,
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .text-h6 {
+  font-weight: 700;
 }
 
 /* Generic surface card with hairline border (used over elevation) */

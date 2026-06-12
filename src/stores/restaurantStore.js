@@ -20,6 +20,7 @@ export const useRestaurantStore = defineStore('restaurant', {
     routeMealRestaurants: [],
     selectedRestaurantId: null,
     activeCuisineFilters: [],
+    activeShowFilters: [],
     activeMealPeriod: null,
     corridorMiles: DEFAULT_CORRIDOR_MILES,
     loaded: false,
@@ -42,6 +43,10 @@ export const useRestaurantStore = defineStore('restaurant', {
 
     setCuisineFilters(list) {
       this.activeCuisineFilters = Array.isArray(list) ? list : []
+    },
+
+    setShowFilters(list) {
+      this.activeShowFilters = Array.isArray(list) ? list : []
     },
 
     setMealPeriod(period) {
@@ -70,9 +75,11 @@ export const useRestaurantStore = defineStore('restaurant', {
       departureTime,
       totalDurationSec = 0,
       cuisines = [],
+      shows = [],
       mealPeriod = null,
     } = {}) {
       this.activeCuisineFilters = cuisines
+      this.activeShowFilters = shows
       this.activeMealPeriod = mealPeriod
 
       const corridorKm = milesToKm(this.corridorMiles)
@@ -148,6 +155,13 @@ export const useRestaurantStore = defineStore('restaurant', {
         )
       }
 
+      // Step 4: Show filter
+      if (shows.length > 0) {
+        result = result.filter((r) =>
+          typeof r.show === 'string' && shows.includes(r.show)
+        )
+      }
+
       // Sort by position along route (or alphabetically if no route)
       if (points.length > 0) {
         result.sort((a, b) => a._routeFraction - b._routeFraction)
@@ -175,6 +189,20 @@ export const useRestaurantStore = defineStore('restaurant', {
       source.forEach((r) =>
         (r.cuisine || []).forEach((c) => set.add(c))
       )
+      return Array.from(set).sort()
+    },
+
+    availableShows: (s) => {
+      const set = new Set()
+      const source =
+        s.routeMealRestaurants.length > 0
+          ? s.routeMealRestaurants
+          : s.allRestaurants
+      source.forEach((r) => {
+        if (typeof r.show === 'string' && r.show.trim() !== '') {
+          set.add(r.show)
+        }
+      })
       return Array.from(set).sort()
     },
 

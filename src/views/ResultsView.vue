@@ -15,6 +15,7 @@ const restaurantStore = useRestaurantStore()
 
 const view = ref('list')
 const selectedCuisines = ref([])
+const selectedShows = ref([])
 const mealPeriod = ref(null)
 
 onMounted(() => {
@@ -34,14 +35,24 @@ function runFilters() {
     departureTime: routeStore.departureTime,
     totalDurationSec: routeStore.totalDuration,
     cuisines: selectedCuisines.value,
+    shows: selectedShows.value,
     mealPeriod: mealPeriod.value,
   })
 }
 
-watch([selectedCuisines, mealPeriod], runFilters, { deep: true })
+watch([selectedCuisines, selectedShows, mealPeriod], runFilters, { deep: true })
 
 const cuisineOptions = computed(() => restaurantStore.availableCuisines)
 const results = computed(() => restaurantStore.filteredRestaurants)
+const showOptions = computed(() => {
+  const set = new Set()
+  results.value.forEach((r) => {
+    if (typeof r.show === 'string' && r.show.trim() !== '') {
+      set.add(r.show)
+    }
+  })
+  return Array.from(set).sort()
+})
 const routeChoices = computed(() =>
   routeStore.routeOptions.slice(0, 3).map((route) => ({
     ...route,
@@ -71,10 +82,12 @@ function openDetail(id) {
 
 <template>
   <div>
-    <AppHeader title="Stops along your route" />
+    <AppHeader title="Options along your route" />
     <FilterBar
       :cuisines="cuisineOptions"
+      :shows="showOptions"
       v-model:selected-cuisines="selectedCuisines"
+      v-model:selected-shows="selectedShows"
       v-model:meal-period="mealPeriod"
     />
 
@@ -97,7 +110,7 @@ function openDetail(id) {
               size="small"
               class="route-option text-none"
             >
-              Route {{ i + 1 }} · {{ formatDuration(route.totalDuration) }} · {{ route.totalStops }} stops
+              Route {{ i + 1 }} · {{ formatDuration(route.totalDuration) }} · {{ route.totalStops }} options
             </v-btn>
           </v-btn-toggle>
         </div>
@@ -105,7 +118,7 @@ function openDetail(id) {
 
       <div class="results-toolbar">
         <div class="results-summary">
-          <strong>{{ results.length }}</strong> stops found
+          <strong>{{ results.length }}</strong> options found
           <template v-if="routeStore.origin">
             · <em>{{ routeStore.origin }}</em>
             <v-icon size="14">mdi-arrow-right</v-icon>
@@ -139,7 +152,7 @@ function openDetail(id) {
       <div v-else>
         <div v-if="results.length === 0" class="empty-state">
           <v-icon size="40">mdi-silverware-clean</v-icon>
-          <h3 class="empty-title">No stops match your filters</h3>
+          <h3 class="empty-title">No options match your filters</h3>
           <p class="empty-sub">
             Try adjusting cuisines, switching meal period, or check that your
             route is correct.
@@ -222,7 +235,7 @@ function openDetail(id) {
 .empty-title {
   margin: 12px 0 4px;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   color: rgb(var(--v-theme-on-surface));
 }
 .empty-sub {

@@ -35,7 +35,7 @@ function goBack() {
       />
     </template>
 
-    <v-app-bar-title class="font-weight-semibold">
+    <v-app-bar-title class="app-title">
       <span class="brand-mark">●</span>
       {{ title }}
     </v-app-bar-title>
@@ -55,6 +55,9 @@ function goBack() {
 <style scoped>
 .app-header {
   border-bottom: var(--rte-border);
+}
+.app-title {
+  font-weight: 700;
 }
 .brand-mark {
   color: rgb(var(--v-theme-primary));

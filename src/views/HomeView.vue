@@ -179,7 +179,7 @@ async function onSubmit(payload) {
 .eyebrow {
   color: rgb(var(--v-theme-primary));
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   margin-bottom: 12px;

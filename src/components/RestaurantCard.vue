@@ -95,7 +95,7 @@ const isOpen = computed(() => props.restaurant._isOpenAtArrival)
 }
 .restaurant-title {
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }

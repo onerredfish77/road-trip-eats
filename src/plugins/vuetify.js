@@ -61,7 +61,7 @@ export default createVuetify({
     VBtn: {
       rounded: 'lg',
       size: 'large',
-      class: 'text-none font-weight-medium',
+      class: 'text-none',
     },
     VCard: { rounded: 'lg', flat: true },
     VTextField: {

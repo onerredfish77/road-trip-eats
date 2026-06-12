@@ -210,7 +210,7 @@ const distanceMi = computed(() => {
 }
 .row-value {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 2px;
 }
 .row-sub {
@@ -231,7 +231,7 @@ const distanceMi = computed(() => {
 }
 .section-title {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgb(var(--v-theme-on-surface-variant));
