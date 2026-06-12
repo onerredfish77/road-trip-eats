@@ -2,9 +2,10 @@
 import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/themeStore'
+import logoMark from '@/assets/images/i-ate-there-logo-mark.png'
 
 const props = defineProps({
-  title: { type: String, default: 'Road Trip Eats' },
+  title: { type: String, default: 'I Ate There!' },
   showBack: { type: Boolean, default: false },
 })
 
@@ -36,7 +37,9 @@ function goBack() {
     </template>
 
     <v-app-bar-title class="app-title">
-      <span class="brand-mark">●</span>
+      <span class="brand-mark-circle">
+        <img class="brand-mark" :src="logoMark" alt="I Ate There! logo" />
+      </span>
       {{ title }}
     </v-app-bar-title>
 
@@ -59,10 +62,21 @@ function goBack() {
 .app-title {
   font-weight: 700;
 }
-.brand-mark {
-  color: rgb(var(--v-theme-primary));
+.brand-mark-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 8px;
-  font-size: 14px;
   vertical-align: middle;
+}
+.brand-mark {
+  width: 17.5px;
+  height: 17.5px;
+  object-fit: contain;
 }
 </style>

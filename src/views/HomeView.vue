@@ -14,6 +14,24 @@ const restaurantStore = useRestaurantStore()
 const loading = ref(false)
 const errorMessage = ref('')
 
+async function requestRoute(google, service, originArg, destinationArg) {
+  return service.route({
+    origin: originArg,
+    destination: destinationArg,
+    travelMode: google.maps.TravelMode.DRIVING,
+    provideRouteAlternatives: true,
+  })
+}
+
+function isGeocodeRouteError(err) {
+  const msg = String(err?.message || '').toUpperCase()
+  return (
+    msg.includes('DIRECTIONS_ROUTE_NOT_FOUND') ||
+    msg.includes('NOT_FOUND') ||
+    msg.includes('ZERO_RESULTS')
+  )
+}
+
 async function fetchDirections({
   origin,
   destination,
@@ -46,12 +64,16 @@ async function fetchDirections({
     ? new google.maps.LatLng(destinationPlace.lat, destinationPlace.lng)
     : destination
 
-  const result = await service.route({
-    origin: originArg,
-    destination: destinationArg,
-    travelMode: google.maps.TravelMode.DRIVING,
-    provideRouteAlternatives: true,
-  })
+  let result
+  try {
+    result = await requestRoute(google, service, originArg, destinationArg)
+  } catch (err) {
+    // If geocoding fails on place coordinates, retry with plain address strings.
+    const shouldRetryWithStrings =
+      isGeocodeRouteError(err) && (originPlace || destinationPlace)
+    if (!shouldRetryWithStrings) throw err
+    result = await requestRoute(google, service, origin, destination)
+  }
   if (!result.routes?.length) throw new Error('No route found.')
   const routes = result.routes.slice(0, 3)
   const firstLegs = routes[0]?.legs || []
@@ -120,7 +142,7 @@ async function onSubmit(payload) {
     <v-main>
       <section class="hero">
         <div class="hero-inner">
-          <div class="eyebrow">Road Trip Eats</div>
+          <div class="eyebrow">I Ate There!</div>
           <h1 class="hero-title">
             Find <span class="accent">TV-famous</span> eats along your route.
           </h1>
