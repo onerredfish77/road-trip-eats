@@ -9,13 +9,13 @@ const props = defineProps({
 })
 
 const days = [
-  ['monday', 'Monday'],
-  ['tuesday', 'Tuesday'],
-  ['wednesday', 'Wednesday'],
-  ['thursday', 'Thursday'],
-  ['friday', 'Friday'],
-  ['saturday', 'Saturday'],
-  ['sunday', 'Sunday'],
+  ['monday', 'Mon'],
+  ['tuesday', 'Tue'],
+  ['wednesday', 'Wed'],
+  ['thursday', 'Thu'],
+  ['friday', 'Fri'],
+  ['saturday', 'Sat'],
+  ['sunday', 'Sun'],
 ]
 
 const arrivalLabel = computed(() => {
@@ -33,159 +33,254 @@ const distanceMi = computed(() => {
 </script>
 
 <template>
-  <div>
-    <div
-      class="hero-bg"
-      :style="{ height: '200px', position: 'relative' }"
-    >
-      <div
-        class="d-flex flex-column justify-end h-100 pa-4"
-        style="color: white;"
-      >
-        <div class="text-overline">{{ restaurant.address.city }}, {{ restaurant.address.state }}</div>
-        <div class="text-h5 font-weight-bold">{{ restaurant.name }}</div>
+  <v-container class="detail-container">
+    <header class="detail-header">
+      <div class="text-overline location">
+        {{ restaurant.address.city }}, {{ restaurant.address.state }}
       </div>
-    </div>
+      <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+      <div class="detail-status">
+        <v-chip
+          v-if="arrivalLabel"
+          size="small"
+          :color="restaurant._isOpenAtArrival ? 'success' : 'error'"
+          variant="tonal"
+        >
+          {{ restaurant._isOpenAtArrival ? 'Open at arrival' : 'Closed at arrival' }}
+        </v-chip>
+        <v-chip
+          v-else
+          size="small"
+          :color="restaurant.still_open ? 'success' : 'error'"
+          variant="tonal"
+        >
+          {{ restaurant.still_open ? 'Currently open' : 'Permanently closed' }}
+        </v-chip>
+      </div>
+    </header>
 
-    <v-container>
-      <v-row>
-        <v-col cols="12">
-          <v-card variant="flat" class="bg-secondary mb-3">
-            <v-card-text>
-              <div class="d-flex align-center mb-2">
-                <v-icon class="mr-2" color="primary">mdi-television-classic</v-icon>
-                <div>
-                  <div class="font-weight-bold">{{ restaurant.show }}</div>
-                  <div class="text-caption">
-                    Season {{ restaurant.season }}, Episode {{ restaurant.episode }}
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex align-center">
-                <v-icon class="mr-2" color="accent">mdi-silverware-fork-knife</v-icon>
-                <div>
-                  <div class="text-overline">Featured Dish</div>
-                  <div class="font-weight-medium">{{ restaurant.featured_dish }}</div>
-                </div>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12">
-          <p class="text-body-1">{{ restaurant.description }}</p>
-        </v-col>
-
-        <v-col cols="12" v-if="arrivalLabel || distanceMi">
-          <v-card variant="outlined" class="pa-3">
-            <div v-if="arrivalLabel" class="d-flex align-center mb-1">
-              <v-icon class="mr-2" color="primary">mdi-clock-outline</v-icon>
-              <span>Estimated arrival: <strong>{{ arrivalLabel }}</strong></span>
-            </div>
-            <div v-if="distanceMi" class="d-flex align-center">
-              <v-icon class="mr-2" color="primary">mdi-map-marker-distance</v-icon>
-              <span><strong>{{ distanceMi }} mi</strong> off your route</span>
-            </div>
-            <v-chip
-              class="mt-2"
-              size="small"
-              :color="restaurant._isOpenAtArrival ? 'success' : 'error'"
-              variant="flat"
-            >
-              {{ restaurant._isOpenAtArrival ? 'Open when you arrive' : 'Closed when you arrive' }}
-            </v-chip>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12">
-          <div class="text-overline mb-1">Cuisine</div>
-          <div class="d-flex flex-wrap ga-1 mb-3">
-            <v-chip
-              v-for="c in restaurant.cuisine"
-              :key="c"
-              size="small"
-              color="primary"
-              variant="tonal"
-              class="text-capitalize"
-            >
-              {{ c }}
-            </v-chip>
+    <section class="rte-card section-card">
+      <div class="card-row">
+        <v-icon class="row-icon">mdi-television-classic</v-icon>
+        <div>
+          <div class="row-label">Featured on</div>
+          <div class="row-value">{{ restaurant.show }}</div>
+          <div class="row-sub">
+            Season {{ restaurant.season }} · Episode {{ restaurant.episode }}
           </div>
+        </div>
+      </div>
+      <div class="card-divider" />
+      <div class="card-row">
+        <v-icon class="row-icon">mdi-silverware-fork-knife</v-icon>
+        <div>
+          <div class="row-label">Featured dish</div>
+          <div class="row-value">{{ restaurant.featured_dish }}</div>
+        </div>
+      </div>
+    </section>
 
-          <div v-if="restaurant.tags && restaurant.tags.length">
-            <div class="text-overline mb-1">Tags</div>
-            <div class="d-flex flex-wrap ga-1">
-              <v-chip
-                v-for="t in restaurant.tags"
-                :key="t"
-                size="small"
-                variant="outlined"
-                class="text-capitalize"
-              >
-                {{ t }}
-              </v-chip>
-            </div>
-          </div>
-        </v-col>
+    <p class="description">{{ restaurant.description }}</p>
 
-        <v-col cols="12">
-          <div class="text-overline mb-1">Hours</div>
-          <v-list density="compact" class="bg-transparent pa-0">
-            <v-list-item
-              v-for="[key, label] in days"
-              :key="key"
-              class="px-0"
-            >
-              <template #prepend>
-                <span class="text-caption font-weight-medium" style="width: 100px">{{ label }}</span>
-              </template>
-              <v-list-item-title class="text-caption">
-                {{ formatHours(restaurant.hours?.[key]) }}
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-col>
+    <section v-if="arrivalLabel || distanceMi" class="rte-card section-card">
+      <div v-if="arrivalLabel" class="card-row simple">
+        <v-icon class="row-icon">mdi-clock-outline</v-icon>
+        <div><span class="row-sub">Estimated arrival</span> · <strong>{{ arrivalLabel }}</strong></div>
+      </div>
+      <div v-if="distanceMi" class="card-row simple">
+        <v-icon class="row-icon">mdi-map-marker-distance</v-icon>
+        <div><strong>{{ distanceMi }} mi</strong> <span class="row-sub">off your route</span></div>
+      </div>
+    </section>
 
-        <v-col cols="12">
-          <div class="text-overline mb-1">Address</div>
-          <div class="text-body-2 mb-3">
-            {{ restaurant.address.street }}<br />
-            {{ restaurant.address.city }}, {{ restaurant.address.state }}
-            {{ restaurant.address.zip }}
-          </div>
+    <section class="meta-section">
+      <h3 class="section-title">Cuisine</h3>
+      <div class="chip-list">
+        <v-chip
+          v-for="c in restaurant.cuisine"
+          :key="c"
+          size="small"
+          variant="tonal"
+          class="text-capitalize"
+        >
+          {{ c }}
+        </v-chip>
+      </div>
 
-          <div v-if="restaurant.phone" class="d-flex align-center mb-2">
-            <v-icon class="mr-2" size="18">mdi-phone</v-icon>
-            <a :href="`tel:${restaurant.phone}`" class="text-decoration-none">
-              {{ restaurant.phone }}
-            </a>
-          </div>
-          <div v-if="restaurant.website" class="d-flex align-center">
-            <v-icon class="mr-2" size="18">mdi-web</v-icon>
-            <a
-              :href="restaurant.website"
-              target="_blank"
-              rel="noopener"
-              class="text-decoration-none"
-            >
-              Visit website
-            </a>
-          </div>
-        </v-col>
-
-        <v-col cols="12">
+      <template v-if="restaurant.tags && restaurant.tags.length">
+        <h3 class="section-title">Tags</h3>
+        <div class="chip-list">
           <v-chip
-            :color="restaurant.still_open ? 'success' : 'error'"
-            variant="flat"
+            v-for="t in restaurant.tags"
+            :key="t"
             size="small"
+            variant="outlined"
+            class="text-capitalize"
           >
-            <v-icon start size="16">
-              {{ restaurant.still_open ? 'mdi-check-circle' : 'mdi-close-circle' }}
-            </v-icon>
-            {{ restaurant.still_open ? 'Still open today' : 'Permanently closed' }}
+            {{ t }}
           </v-chip>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+        </div>
+      </template>
+    </section>
+
+    <section class="meta-section">
+      <h3 class="section-title">Hours</h3>
+      <div class="hours-grid">
+        <div v-for="[key, label] in days" :key="key" class="hours-row">
+          <span class="hours-day">{{ label }}</span>
+          <span class="hours-value">{{ formatHours(restaurant.hours?.[key]) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="meta-section">
+      <h3 class="section-title">Address</h3>
+      <div class="address">
+        {{ restaurant.address.street }}<br />
+        {{ restaurant.address.city }}, {{ restaurant.address.state }}
+        {{ restaurant.address.zip }}
+      </div>
+
+      <div v-if="restaurant.phone || restaurant.website" class="contact-list">
+        <a v-if="restaurant.phone" :href="`tel:${restaurant.phone}`" class="contact-link">
+          <v-icon size="16">mdi-phone</v-icon>
+          {{ restaurant.phone }}
+        </a>
+        <a
+          v-if="restaurant.website"
+          :href="restaurant.website"
+          target="_blank"
+          rel="noopener"
+          class="contact-link"
+        >
+          <v-icon size="16">mdi-web</v-icon>
+          Visit website
+        </a>
+      </div>
+    </section>
+  </v-container>
 </template>
+
+<style scoped>
+.detail-container {
+  max-width: 720px;
+}
+.detail-header {
+  padding: 16px 0 8px;
+}
+.location {
+  color: rgb(var(--v-theme-on-surface-variant));
+  letter-spacing: 0.08em;
+}
+.restaurant-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 4px 0 12px;
+}
+.detail-status {
+  margin-bottom: 4px;
+}
+.section-card {
+  padding: 16px;
+  margin: 12px 0;
+}
+.card-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.card-row.simple {
+  align-items: center;
+  margin-top: 6px;
+}
+.card-row.simple:first-child {
+  margin-top: 0;
+}
+.row-icon {
+  color: rgb(var(--v-theme-primary));
+  margin-top: 2px;
+}
+.row-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgb(var(--v-theme-on-surface-variant));
+}
+.row-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.row-sub {
+  font-size: 0.8rem;
+  color: rgb(var(--v-theme-on-surface-variant));
+  margin-top: 2px;
+}
+.card-divider {
+  height: 1px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  margin: 14px 0;
+}
+.description {
+  color: rgb(var(--v-theme-on-surface-variant));
+  line-height: 1.55;
+  margin: 12px 4px 16px;
+  font-size: 0.95rem;
+}
+.section-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgb(var(--v-theme-on-surface-variant));
+  margin: 22px 4px 10px;
+}
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px;
+}
+.hours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 4px 16px;
+  padding: 0 4px;
+}
+.hours-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 4px 0;
+  border-bottom: var(--rte-border);
+}
+.hours-day {
+  color: rgb(var(--v-theme-on-surface-variant));
+  font-weight: 500;
+}
+.address {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 0 4px;
+  margin-bottom: 12px;
+}
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 4px;
+}
+.contact-link {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+.contact-link:hover {
+  text-decoration: underline;
+}
+</style>

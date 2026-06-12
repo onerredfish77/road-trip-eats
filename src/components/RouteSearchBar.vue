@@ -136,7 +136,6 @@ defineExpose({ setLoading: (v) => (loading.value = v) })
       placeholder="Starting point"
       prepend-inner-icon="mdi-map-marker"
       autocomplete="off"
-      bg-color="white"
     />
     <v-text-field
       ref="destInputRef"
@@ -145,7 +144,6 @@ defineExpose({ setLoading: (v) => (loading.value = v) })
       placeholder="Destination"
       prepend-inner-icon="mdi-flag-checkered"
       autocomplete="off"
-      bg-color="white"
     />
     <div class="d-flex ga-2">
       <v-text-field
@@ -153,7 +151,6 @@ defineExpose({ setLoading: (v) => (loading.value = v) })
         type="date"
         label="Departure date"
         prepend-inner-icon="mdi-calendar"
-        bg-color="white"
         class="flex-1-1"
       />
       <v-text-field
@@ -161,7 +158,6 @@ defineExpose({ setLoading: (v) => (loading.value = v) })
         type="time"
         label="Time"
         prepend-inner-icon="mdi-clock-outline"
-        bg-color="white"
         class="flex-1-1"
       />
     </div>

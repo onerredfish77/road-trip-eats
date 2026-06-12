@@ -30,33 +30,35 @@ function toggleCuisine(c) {
 </script>
 
 <template>
-  <div class="filter-bar bg-secondary py-2 px-3">
-    <v-btn-toggle
-      v-model="meal"
-      mandatory="force"
-      density="comfortable"
-      color="primary"
-      class="mb-2"
-      variant="outlined"
-    >
-      <v-btn
-        v-for="m in meals"
-        :key="m"
-        :value="m"
-        size="small"
-        class="text-capitalize"
+  <div class="filter-bar">
+    <div class="meal-row">
+      <v-btn-toggle
+        v-model="meal"
+        mandatory="force"
+        density="comfortable"
+        variant="text"
+        divided
+        class="meal-toggle"
       >
-        {{ m.replace('-', ' ') }}
-      </v-btn>
-    </v-btn-toggle>
+        <v-btn
+          v-for="m in meals"
+          :key="m"
+          :value="m"
+          size="small"
+          class="text-capitalize"
+        >
+          {{ m.replace('-', ' ') }}
+        </v-btn>
+      </v-btn-toggle>
+    </div>
 
-    <div class="chip-row">
+    <div class="chip-row no-scrollbar">
       <v-chip
         v-for="c in cuisines"
         :key="c"
         :color="selected.includes(c) ? 'primary' : undefined"
         :variant="selected.includes(c) ? 'flat' : 'outlined'"
-        class="mr-2 mb-1 text-capitalize"
+        class="text-capitalize cuisine-chip"
         size="small"
         @click="toggleCuisine(c)"
       >
@@ -67,20 +69,45 @@ function toggleCuisine(c) {
 </template>
 
 <style scoped>
+.filter-bar {
+  position: sticky;
+  top: 64px;
+  z-index: 5;
+  background: rgb(var(--v-theme-background));
+  border-bottom: var(--rte-border);
+  padding: 8px 12px;
+}
+.meal-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.meal-toggle {
+  border: var(--rte-border);
+  border-radius: 999px;
+  padding: 2px;
+}
+:deep(.meal-toggle .v-btn) {
+  border-radius: 999px !important;
+  letter-spacing: 0;
+}
 .chip-row {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  gap: 6px;
+  padding-bottom: 2px;
 }
-.chip-row::-webkit-scrollbar {
-  display: none;
+/* Let each chip be sized by its content and never truncate */
+.cuisine-chip {
+  flex-shrink: 0;
+  max-width: none !important;
+  white-space: nowrap;
 }
-.filter-bar {
-  position: sticky;
-  top: 64px;
-  z-index: 5;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+:deep(.cuisine-chip .v-chip__content) {
+  overflow: visible;
+  white-space: nowrap;
+  text-overflow: unset;
 }
 </style>

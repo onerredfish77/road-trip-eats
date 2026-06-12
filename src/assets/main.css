@@ -1,33 +1,106 @@
-html, body, #app {
+:root {
+  --rte-radius: 14px;
+  --rte-border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.v-theme--light {
+  --rte-border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
 #app {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #FFFDF7;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+/* Tighter, calmer typography */
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .text-h6 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Generic surface card with hairline border (used over elevation) */
+.rte-card {
+  border-radius: var(--rte-radius);
+  border: var(--rte-border);
+  background: rgb(var(--v-theme-surface));
 }
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
-
 .safe-top {
   padding-top: env(safe-area-inset-top);
 }
 
+/* Page transition */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.18s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
 
-.hero-bg {
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.65) 100%),
-    url('https://images.unsplash.com/photo-1502301103665-0b95cc738daf?auto=format&fit=crop&w=1200&q=70') center/cover no-repeat;
+/* Hide the chip-row scrollbar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Make Vuetify floating labels readable on dark surfaces */
+.v-theme--dark .v-field-label {
+  color: rgba(255, 255, 255, 0.78);
+  opacity: 1;
+}
+.v-theme--dark .v-field--focused .v-field-label {
+  color: rgb(var(--v-theme-primary));
+}
+
+/* Google Places dropdown styling — match the active theme */
+.pac-container {
+  z-index: 3000 !important;
+  font-family: inherit;
+  border-radius: 12px;
+  margin-top: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  background: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  border: var(--rte-border);
+}
+.pac-item {
+  padding: 10px 12px;
+  border-top: var(--rte-border);
+  color: rgb(var(--v-theme-on-surface));
+  cursor: pointer;
+}
+.pac-item:first-child {
+  border-top: 0;
+}
+.pac-item:hover,
+.pac-item-selected {
+  background: rgb(var(--v-theme-surface-variant));
+}
+.pac-item-query,
+.pac-matched {
+  color: rgb(var(--v-theme-on-surface));
+}
+.pac-icon {
+  filter: grayscale(1) opacity(0.6);
 }

@@ -15,6 +15,9 @@ export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
     allRestaurants: [],
     filteredRestaurants: [],
+    // Same set after route + meal-period filters but BEFORE cuisine filter,
+    // used to drive the cuisine chip list so it stays stable as you pick chips.
+    routeMealRestaurants: [],
     selectedRestaurantId: null,
     activeCuisineFilters: [],
     activeMealPeriod: null,
@@ -122,6 +125,9 @@ export const useRestaurantStore = defineStore('restaurant', {
         )
       }
 
+      // Snapshot the set after route + meal filters for the cuisine chip list.
+      this.routeMealRestaurants = result
+
       // Step 3: Cuisine filter
       if (cuisines.length > 0) {
         result = result.filter((r) =>
@@ -146,9 +152,12 @@ export const useRestaurantStore = defineStore('restaurant', {
 
     availableCuisines: (s) => {
       const set = new Set()
+      // Use the route+meal filtered set so chips reflect what's actually
+      // visible, but ignore the cuisine filter itself so toggling chips
+      // doesn't collapse the option list.
       const source =
-        s.filteredRestaurants.length > 0
-          ? s.filteredRestaurants
+        s.routeMealRestaurants.length > 0
+          ? s.routeMealRestaurants
           : s.allRestaurants
       source.forEach((r) =>
         (r.cuisine || []).forEach((c) => set.add(c))

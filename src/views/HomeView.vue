@@ -39,7 +39,6 @@ async function fetchDirections({
   const google = await loadGoogleMaps()
   const service = new google.maps.DirectionsService()
 
-  // Prefer LatLng objects from autocomplete to avoid geocoding ambiguity.
   const originArg = originPlace
     ? new google.maps.LatLng(originPlace.lat, originPlace.lng)
     : origin
@@ -55,18 +54,12 @@ async function fetchDirections({
   if (!result.routes?.length) throw new Error('No route found.')
   const route = result.routes[0]
   const legs = route.legs || []
-  const totalDuration = legs.reduce(
-    (s, l) => s + (l.duration?.value || 0),
-    0
-  )
-  const totalDistance = legs.reduce(
-    (s, l) => s + (l.distance?.value || 0),
-    0
-  )
+  const totalDuration = legs.reduce((s, l) => s + (l.duration?.value || 0), 0)
+  const totalDistance = legs.reduce((s, l) => s + (l.distance?.value || 0), 0)
   const startLoc = legs[0]?.start_location
   const endLoc = legs[legs.length - 1]?.end_location
 
-  // overview_polyline can be a string OR { points: '...' } depending on API shape.
+  // overview_polyline shape varies; normalize to a string
   const polyline =
     typeof route.overview_polyline === 'string'
       ? route.overview_polyline
@@ -78,9 +71,7 @@ async function fetchDirections({
     originCoords: startLoc
       ? { lat: startLoc.lat(), lng: startLoc.lng() }
       : null,
-    destinationCoords: endLoc
-      ? { lat: endLoc.lat(), lng: endLoc.lng() }
-      : null,
+    destinationCoords: endLoc ? { lat: endLoc.lat(), lng: endLoc.lng() } : null,
     departureTime,
     polyline,
     legs: legs.map((l) => ({
@@ -116,23 +107,24 @@ async function onSubmit(payload) {
 </script>
 
 <template>
-  <div>
+  <div class="home">
     <AppHeader />
     <v-main>
-      <div class="hero-bg" style="min-height: 220px; padding: 48px 16px 24px;">
-        <v-container class="text-center" style="color: white;">
-          <div class="text-h4 font-weight-bold mb-2">
-            Find TV-famous eats along your route
-          </div>
-          <div class="text-body-1" style="opacity: 0.9;">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="eyebrow">Road Trip Eats</div>
+          <h1 class="hero-title">
+            Find <span class="accent">TV-famous</span> eats along your route.
+          </h1>
+          <p class="hero-sub">
             From Diners, Drive-Ins and Dives to Man v. Food — discover the iconic
             stops worth pulling off the highway for.
-          </div>
-        </v-container>
-      </div>
+          </p>
+        </div>
+      </section>
 
-      <v-container class="py-6" style="max-width: 560px;">
-        <v-card elevation="6" class="pa-4">
+      <section class="form-wrap">
+        <div class="rte-card form-card">
           <RouteSearchBar
             :initial-origin="routeStore.origin"
             :initial-destination="routeStore.destination"
@@ -154,12 +146,73 @@ async function onSubmit(payload) {
           >
             {{ errorMessage }}
           </v-alert>
-        </v-card>
+        </div>
 
-        <div class="text-center text-caption text-medium-emphasis mt-6">
+        <div class="footnote">
           {{ restaurantStore.allRestaurants.length }} TV-featured restaurants in our database
         </div>
-      </v-container>
+      </section>
     </v-main>
   </div>
 </template>
+
+<style scoped>
+.home {
+  min-height: 100vh;
+}
+.hero {
+  padding: 56px 20px 24px;
+  text-align: center;
+}
+.hero-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.eyebrow {
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0 0 14px;
+}
+.hero-title .accent {
+  color: rgb(var(--v-theme-primary));
+}
+.hero-sub {
+  color: rgb(var(--v-theme-on-surface-variant));
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.form-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 8px 16px 56px;
+}
+.form-card {
+  padding: 22px 20px;
+}
+.footnote {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgb(var(--v-theme-on-surface-variant));
+  margin-top: 24px;
+}
+
+@media (min-width: 600px) {
+  .hero {
+    padding: 80px 24px 32px;
+  }
+  .hero-title {
+    font-size: 2.5rem;
+  }
+}
+</style>

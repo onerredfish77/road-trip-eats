@@ -1,12 +1,20 @@
 <script setup>
+import { onMounted, watchEffect } from 'vue'
+import { useTheme } from 'vuetify'
 import { RouterView } from 'vue-router'
-import { onMounted } from 'vue'
 import { useRestaurantStore } from '@/stores/restaurantStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const restaurantStore = useRestaurantStore()
+const themeStore = useThemeStore()
+const theme = useTheme()
 
 onMounted(() => {
   restaurantStore.loadRestaurants()
+})
+
+watchEffect(() => {
+  theme.global.name.value = themeStore.name
 })
 </script>
 

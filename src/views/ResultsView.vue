@@ -13,7 +13,7 @@ const router = useRouter()
 const routeStore = useRouteStore()
 const restaurantStore = useRestaurantStore()
 
-const view = ref('list') // 'list' | 'map'
+const view = ref('list')
 const selectedCuisines = ref([])
 const mealPeriod = ref(null)
 
@@ -22,7 +22,6 @@ onMounted(() => {
     router.replace('/')
     return
   }
-  // Default the meal period from the departure time if we have one.
   if (!mealPeriod.value && routeStore.departureTime) {
     mealPeriod.value = mealPeriodForTime(routeStore.departureTime)
   }
@@ -41,7 +40,7 @@ function runFilters() {
 
 watch([selectedCuisines, mealPeriod], runFilters, { deep: true })
 
-const cuisineOptions = computed(() => restaurantStore.allCuisines)
+const cuisineOptions = computed(() => restaurantStore.availableCuisines)
 const results = computed(() => restaurantStore.filteredRestaurants)
 
 function openDetail(id) {
@@ -59,28 +58,29 @@ function openDetail(id) {
     />
 
     <v-main>
-      <div class="px-3 pt-2 pb-2 d-flex align-center justify-space-between">
-        <div class="text-body-2 text-medium-emphasis">
+      <div class="results-toolbar">
+        <div class="results-summary">
           <strong>{{ results.length }}</strong> stops found
           <template v-if="routeStore.origin">
-            from <em>{{ routeStore.origin }}</em>
-            to <em>{{ routeStore.destination }}</em>
+            · <em>{{ routeStore.origin }}</em>
+            <v-icon size="14">mdi-arrow-right</v-icon>
+            <em>{{ routeStore.destination }}</em>
           </template>
         </div>
         <v-btn-toggle
           v-model="view"
           mandatory
-          density="comfortable"
-          color="primary"
+          density="compact"
           variant="outlined"
           divided
+          class="view-toggle"
         >
           <v-btn value="list" size="small" icon="mdi-format-list-bulleted" />
           <v-btn value="map" size="small" icon="mdi-map-outline" />
         </v-btn-toggle>
       </div>
 
-      <div v-if="view === 'map'" style="height: calc(100vh - 220px); min-height: 320px;">
+      <div v-if="view === 'map'" class="map-pane">
         <MapView
           :route-polyline="routeStore.routePolyline"
           :restaurants="results"
@@ -92,13 +92,13 @@ function openDetail(id) {
       </div>
 
       <div v-else>
-        <div v-if="results.length === 0" class="pa-8 text-center text-medium-emphasis">
-          <v-icon size="48" color="primary">mdi-silverware-clean</v-icon>
-          <div class="text-h6 mt-2">No stops match your filters</div>
-          <div class="text-body-2">
+        <div v-if="results.length === 0" class="empty-state">
+          <v-icon size="40">mdi-silverware-clean</v-icon>
+          <h3 class="empty-title">No stops match your filters</h3>
+          <p class="empty-sub">
             Try adjusting cuisines, switching meal period, or check that your
             route is correct.
-          </div>
+          </p>
         </div>
 
         <RestaurantCard
@@ -112,3 +112,53 @@ function openDetail(id) {
     </v-main>
   </div>
 </template>
+
+<style scoped>
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.results-summary {
+  font-size: 0.85rem;
+  color: rgb(var(--v-theme-on-surface-variant));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.results-summary strong {
+  color: rgb(var(--v-theme-on-surface));
+}
+.view-toggle {
+  border-radius: 999px !important;
+}
+:deep(.view-toggle .v-btn) {
+  border-radius: 999px !important;
+}
+.map-pane {
+  height: calc(100vh - 230px);
+  min-height: 320px;
+}
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  color: rgb(var(--v-theme-on-surface-variant));
+}
+.empty-title {
+  margin: 12px 0 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgb(var(--v-theme-on-surface));
+}
+.empty-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+</style>

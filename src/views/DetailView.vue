@@ -21,7 +21,6 @@ onMounted(() => {
 })
 
 const restaurant = computed(() => {
-  // Prefer the filtered version (includes computed fields like _isOpenAtArrival)
   return (
     restaurantStore.filteredRestaurants.find((r) => r.id === props.id) ||
     restaurantStore.getRestaurantById(props.id)
@@ -44,23 +43,20 @@ function goBack() {
   <div>
     <AppHeader :title="restaurant?.name || 'Restaurant'" show-back />
     <v-main>
-      <div v-if="!restaurant" class="pa-8 text-center text-medium-emphasis">
-        <v-icon size="48">mdi-alert-circle-outline</v-icon>
-        <div class="text-h6 mt-2">Restaurant not found</div>
+      <div v-if="!restaurant" class="not-found">
+        <v-icon size="40">mdi-alert-circle-outline</v-icon>
+        <h3 class="not-found-title">Restaurant not found</h3>
         <v-btn class="mt-3" color="primary" @click="goBack">Back</v-btn>
       </div>
 
       <template v-else>
         <RestaurantDetailSheet :restaurant="restaurant" />
 
-        <div style="height: 220px;" class="px-3">
-          <MapView
-            :restaurants="[restaurant]"
-            mode="detail"
-          />
+        <div class="detail-map">
+          <MapView :restaurants="[restaurant]" mode="detail" />
         </div>
 
-        <v-container class="pb-6">
+        <v-container class="cta-wrap">
           <v-btn
             color="primary"
             block
@@ -78,3 +74,27 @@ function goBack() {
     </v-main>
   </div>
 </template>
+
+<style scoped>
+.not-found {
+  text-align: center;
+  padding: 64px 24px;
+  color: rgb(var(--v-theme-on-surface-variant));
+}
+.not-found-title {
+  margin: 12px 0 4px;
+  color: rgb(var(--v-theme-on-surface));
+}
+.detail-map {
+  height: 240px;
+  margin: 0 16px;
+  border-radius: var(--rte-radius);
+  overflow: hidden;
+  border: var(--rte-border);
+}
+.cta-wrap {
+  max-width: 720px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+</style>
