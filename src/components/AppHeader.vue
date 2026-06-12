@@ -3,6 +3,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/themeStore'
 import logoMark from '@/assets/images/i-ate-there-logo-mark.png'
+import logoMarkInvert from '@/assets/images/i-ate-there-logo-mark-INVERT.png'
 
 const props = defineProps({
   title: { type: String, default: 'I Ate There!' },
@@ -14,6 +15,7 @@ const route = useRoute()
 const themeStore = useThemeStore()
 
 const canGoBack = computed(() => props.showBack || route.name !== 'home')
+const logoSrc = computed(() => (themeStore.isDark ? logoMarkInvert : logoMark))
 
 function goBack() {
   if (window.history.length > 1) router.back()
@@ -37,10 +39,10 @@ function goBack() {
     </template>
 
     <v-app-bar-title class="app-title">
-      <span class="brand-mark-circle">
-        <img class="brand-mark" :src="logoMark" alt="I Ate There! logo" />
+      <span class="title-content">
+        <img class="brand-mark" :src="logoSrc" alt="I Ate There! logo" />
+        <span class="title-text">{{ title }}</span>
       </span>
-      {{ title }}
     </v-app-bar-title>
 
     <template #append>
@@ -62,21 +64,23 @@ function goBack() {
 .app-title {
   font-weight: 700;
 }
-.brand-mark-circle {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+.app-title :deep(.v-toolbar-title__placeholder) {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.title-content {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  margin-right: 8px;
-  vertical-align: middle;
+  gap: 8px;
+}
+.title-text {
+  line-height: 1.1;
 }
 .brand-mark {
-  width: 17.5px;
-  height: 17.5px;
+  width: 26.25px;
+  height: 26.25px;
   object-fit: contain;
+  display: block;
 }
 </style>
