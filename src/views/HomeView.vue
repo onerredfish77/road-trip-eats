@@ -142,7 +142,7 @@ async function onSubmit(payload) {
     <v-main>
       <section class="hero">
         <div class="hero-inner">
-          <div class="eyebrow">I Ate There!</div>
+          <div class="eyebrow">Famous Eats</div>
           <h1 class="hero-title">
             Find <span class="accent">TV-famous</span> eats along your route.
           </h1>

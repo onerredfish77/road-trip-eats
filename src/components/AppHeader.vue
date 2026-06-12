@@ -6,7 +6,7 @@ import logoMark from '@/assets/images/i-ate-there-logo-mark.png'
 import logoMarkInvert from '@/assets/images/i-ate-there-logo-mark-INVERT.png'
 
 const props = defineProps({
-  title: { type: String, default: 'I Ate There!' },
+  title: { type: String, default: 'Famous Eats' },
   showBack: { type: Boolean, default: false },
 })
 
@@ -40,7 +40,7 @@ function goBack() {
 
     <v-app-bar-title class="app-title">
       <span class="title-content">
-        <img class="brand-mark" :src="logoSrc" alt="I Ate There! logo" />
+        <img class="brand-mark" :src="logoSrc" alt="Famous Eats logo" />
         <span class="title-text">{{ title }}</span>
       </span>
     </v-app-bar-title>
