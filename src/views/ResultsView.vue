@@ -42,6 +42,27 @@ watch([selectedCuisines, mealPeriod], runFilters, { deep: true })
 
 const cuisineOptions = computed(() => restaurantStore.availableCuisines)
 const results = computed(() => restaurantStore.filteredRestaurants)
+const routeChoices = computed(() =>
+  routeStore.routeOptions.slice(0, 3).map((route) => ({
+    ...route,
+    totalStops: restaurantStore.countStopsAlongRoute(route.polyline),
+  }))
+)
+const selectedRouteIndex = computed({
+  get: () => routeStore.selectedRouteIndex,
+  set: (index) => {
+    routeStore.selectRouteOption(index)
+    runFilters()
+  },
+})
+
+function formatDuration(totalSeconds) {
+  const minutes = Math.round((totalSeconds || 0) / 60)
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours === 0) return `${mins}m`
+  return `${hours}h ${mins}m`
+}
 
 function openDetail(id) {
   router.push({ name: 'detail', params: { id } })
@@ -58,6 +79,30 @@ function openDetail(id) {
     />
 
     <v-main>
+      <div v-if="routeChoices.length > 1" class="route-switcher-wrap">
+        <div class="route-switcher-label">Routes</div>
+        <div class="route-switcher-scroll no-scrollbar">
+          <v-btn-toggle
+            v-model="selectedRouteIndex"
+            mandatory
+            density="compact"
+            variant="outlined"
+            divided
+            class="route-toggle"
+          >
+            <v-btn
+              v-for="(route, i) in routeChoices"
+              :key="`${route.summary}-${i}`"
+              :value="i"
+              size="small"
+              class="route-option text-none"
+            >
+              Route {{ i + 1 }} · {{ formatDuration(route.totalDuration) }} · {{ route.totalStops }} stops
+            </v-btn>
+          </v-btn-toggle>
+        </div>
+      </div>
+
       <div class="results-toolbar">
         <div class="results-summary">
           <strong>{{ results.length }}</strong> stops found
@@ -134,9 +179,36 @@ function openDetail(id) {
 }
 .view-toggle {
   border-radius: 999px !important;
+  min-width: 120px;
+  flex: 0 0 auto;
 }
 :deep(.view-toggle .v-btn) {
   border-radius: 999px !important;
+  min-width: 56px;
+}
+.route-switcher-wrap {
+  padding: 10px 16px 4px;
+}
+.route-switcher-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgb(var(--v-theme-on-surface-variant));
+  margin-bottom: 6px;
+}
+.route-switcher-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.route-toggle {
+  border-radius: 999px !important;
+  min-width: max-content;
+}
+:deep(.route-toggle .v-btn) {
+  border-radius: 999px !important;
+}
+.route-option {
+  white-space: nowrap;
 }
 .map-pane {
   height: calc(100vh - 230px);

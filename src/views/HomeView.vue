@@ -50,22 +50,35 @@ async function fetchDirections({
     origin: originArg,
     destination: destinationArg,
     travelMode: google.maps.TravelMode.DRIVING,
+    provideRouteAlternatives: true,
   })
   if (!result.routes?.length) throw new Error('No route found.')
-  const route = result.routes[0]
-  const legs = route.legs || []
-  const totalDuration = legs.reduce((s, l) => s + (l.duration?.value || 0), 0)
-  const totalDistance = legs.reduce((s, l) => s + (l.distance?.value || 0), 0)
-  const startLoc = legs[0]?.start_location
-  const endLoc = legs[legs.length - 1]?.end_location
+  const routes = result.routes.slice(0, 3)
+  const firstLegs = routes[0]?.legs || []
+  const startLoc = firstLegs[0]?.start_location
+  const endLoc = firstLegs[firstLegs.length - 1]?.end_location
 
-  // overview_polyline shape varies; normalize to a string
-  const polyline =
-    typeof route.overview_polyline === 'string'
-      ? route.overview_polyline
-      : route.overview_polyline?.points || ''
+  const options = routes.map((route, i) => {
+    const legs = route.legs || []
+    const totalDuration = legs.reduce((s, l) => s + (l.duration?.value || 0), 0)
+    const totalDistance = legs.reduce((s, l) => s + (l.distance?.value || 0), 0)
+    const polyline =
+      typeof route.overview_polyline === 'string'
+        ? route.overview_polyline
+        : route.overview_polyline?.points || ''
+    return {
+      summary: route.summary || `Route ${i + 1}`,
+      polyline,
+      legs: legs.map((l) => ({
+        distance: l.distance?.value,
+        duration: l.duration?.value,
+      })),
+      totalDuration,
+      totalDistance,
+    }
+  })
 
-  routeStore.setRoute({
+  routeStore.setRouteOptions({
     origin,
     destination,
     originCoords: startLoc
@@ -73,13 +86,8 @@ async function fetchDirections({
       : null,
     destinationCoords: endLoc ? { lat: endLoc.lat(), lng: endLoc.lng() } : null,
     departureTime,
-    polyline,
-    legs: legs.map((l) => ({
-      distance: l.distance?.value,
-      duration: l.duration?.value,
-    })),
-    totalDuration,
-    totalDistance,
+    options,
+    selectedIndex: 0,
   })
 }
 

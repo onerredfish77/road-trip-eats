@@ -48,6 +48,19 @@ export const useRestaurantStore = defineStore('restaurant', {
       this.activeMealPeriod = period || null
     },
 
+    // Count route-matching restaurants using proximity only.
+    // This intentionally ignores meal period and cuisine filters.
+    countStopsAlongRoute(routePolyline) {
+      const points = decodePolyline(routePolyline || '')
+      if (points.length === 0) return this.allRestaurants.length
+      const corridorKm = milesToKm(this.corridorMiles)
+      return this.allRestaurants.reduce((count, r) => {
+        const target = { lat: r.address.lat, lng: r.address.lng }
+        const c = closestPointOnPolyline(points, target)
+        return c.distanceKm <= corridorKm ? count + 1 : count
+      }, 0)
+    },
+
     // Core filtering pipeline.
     // routePolyline: encoded polyline string from Directions API (or null/empty).
     // departureTime: ISO string or Date.
